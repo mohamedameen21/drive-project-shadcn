@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import Dark from "@/Pages/Dark.vue";
 
 defineProps<{
     canLogin?: boolean;
@@ -36,6 +37,11 @@ defineProps<{
                     class="ms-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500"
                     >Register</Link
                 >
+
+                <span class="ms-4">
+                  <Dark/>
+                </span>
+
             </template>
         </div>
 

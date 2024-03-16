@@ -6,6 +6,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import Dark from "@/Pages/Dark.vue";
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -71,6 +72,12 @@ const showingNavigationDropdown = ref(false);
                                     </template>
                                 </Dropdown>
                             </div>
+
+                            <div>
+                              <span class="ms-4">
+                                <Dark/>
+                              </span>
+                            </div>
                         </div>
 
                         <!-- Hamburger -->
@@ -131,6 +138,14 @@ const showingNavigationDropdown = ref(false);
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Log Out
                             </ResponsiveNavLink>
+                          <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <div>
+                              Theme
+                              <span class="ms-4">
+                                <Dark/>
+                              </span>
+                            </div>
+                          </ResponsiveNavLink>
                         </div>
                     </div>
                 </div>
