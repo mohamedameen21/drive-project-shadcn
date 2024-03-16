@@ -29,7 +29,7 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/dark',function() {
+Route::get('/dark', function () {
     return Inertia::render('Dark');
 });
 
