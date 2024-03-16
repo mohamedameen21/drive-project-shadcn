@@ -40,6 +40,27 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+
+                                <NavLink
+                                    :href="route('my-files')"
+                                    :active="route().current('my-files')"
+                                >
+                                    My Files
+                                </NavLink>
+
+                                <NavLink
+                                    :href="route('shared-with-me')"
+                                    :active="route().current('shared-with-me')"
+                                >
+                                    Shared with me
+                                </NavLink>
+
+                                <NavLink
+                                    :href="route('shared-by-me')"
+                                    :active="route().current('shared-my-me')"
+                                >
+                                    Shared by me
+                                </NavLink>
                             </div>
                         </div>
 
@@ -153,6 +174,13 @@ const showingNavigationDropdown = ref(false);
                         >
                             Dashboard
                         </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            :href="route('dashboard')"
+                            :active="route().current('dashboard')"
+                        >
+                            ithu enna
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -198,15 +226,15 @@ const showingNavigationDropdown = ref(false);
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="bg-white dark:bg-gray-800 shadow"
-                v-if="$slots.header"
-            >
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header" />
-                </div>
-            </header>
+            <!--             Page Heading -->
+            <!--            <header-->
+            <!--                class="bg-white dark:bg-gray-800 shadow"-->
+            <!--                v-if="$slots.header"-->
+            <!--            >-->
+            <!--                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">-->
+            <!--                    <slot name="header" />-->
+            <!--                </div>-->
+            <!--            </header>-->
 
             <!-- Page Content -->
             <main>
