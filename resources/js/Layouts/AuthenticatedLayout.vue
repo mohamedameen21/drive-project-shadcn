@@ -42,8 +42,8 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('my-files')"
-                                    :active="route().current('my-files')"
+                                    :href="route('myFiles')"
+                                    :active="route().current('myFiles')"
                                 >
                                     My Files
                                 </NavLink>
