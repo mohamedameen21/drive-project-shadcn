@@ -17688,6 +17688,32 @@ namespace Illuminate\Testing {
             }
     }
 
+namespace Illuminate\Database\Schema {
+            /**
+     * 
+     *
+     */        class Blueprint {
+                    /**
+         * 
+         *
+         * @see \Kalnoy\Nestedset\NestedSetServiceProvider::register()
+         * @static 
+         */        public static function nestedSet()
+        {
+                        return \Illuminate\Database\Schema\Blueprint::nestedSet();
+        }
+                    /**
+         * 
+         *
+         * @see \Kalnoy\Nestedset\NestedSetServiceProvider::register()
+         * @static 
+         */        public static function dropNestedSet()
+        {
+                        return \Illuminate\Database\Schema\Blueprint::dropNestedSet();
+        }
+            }
+    }
+
 
 namespace  {
             class App extends \Illuminate\Support\Facades\App {}
