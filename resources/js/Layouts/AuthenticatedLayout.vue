@@ -18,7 +18,7 @@ const showingNavigationDropdown = ref(false);
                 class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
             >
                 <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <!-- Logo -->
@@ -42,8 +42,8 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('my-files')"
-                                    :active="route().current('my-files')"
+                                    :href="route('myFiles')"
+                                    :active="route().current('myFiles')"
                                 >
                                     My Files
                                 </NavLink>

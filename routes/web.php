@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -29,16 +30,18 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/dark', function () {
-    return Inertia::render('Dark');
-});
+Route::controller(FileController::class)
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        Route::get('/my-files', 'myFiles')->name('myFiles');
+    });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/my-files', function () {
-    })->name('my-files');
+    //    Route::get('/my-files', function () {
+    //    })->name('my-files');
 
     Route::get('/shared-with-me', function () {
     })->name('shared-with-me');
