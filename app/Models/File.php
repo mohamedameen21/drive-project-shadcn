@@ -11,4 +11,14 @@ use Kalnoy\Nestedset\NodeTrait;
 class File extends Model
 {
     use HasCreatorAndUpdater, HasFactory, NodeTrait, SoftDeletes;
+
+    public function isOwnedBy($userId)
+    {
+        return $this->created_by == $userId;
+    }
+
+    public static function getDefaultRoot($userId)
+    {
+        return self::whereIsRoot()->where('created_by', $userId)->firstOrFail();
+    }
 }
