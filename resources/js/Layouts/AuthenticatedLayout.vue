@@ -13,6 +13,8 @@ const showingNavigationDropdown = ref(false);
 
 <template>
     <div>
+        <Dark />
+
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav
                 class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
@@ -176,10 +178,10 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
+                            :href="route('myFiles')"
+                            :active="route().current('myFiles')"
                         >
-                            ithu enna
+                            My Files
                         </ResponsiveNavLink>
                     </div>
 
@@ -209,11 +211,7 @@ const showingNavigationDropdown = ref(false);
                             >
                                 Log Out
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('logout')"
-                                method="post"
-                                as="button"
-                            >
+                            <ResponsiveNavLink href="#" as="button">
                                 <div>
                                     Theme
                                     <span class="ms-4">
