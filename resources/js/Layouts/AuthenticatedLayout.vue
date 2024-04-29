@@ -7,6 +7,8 @@ import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Link } from "@inertiajs/vue3";
 import Dark from "@/Pages/Dark.vue";
+import CustomeSearch from "@/Components/CustomeSearch.vue";
+import CreateNewDropdown from "@/Components/CreateNewDropdown.vue";
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -98,8 +100,8 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            Profile</DropdownLink
-                                        >
+                                            Profile
+                                        </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
@@ -202,8 +204,8 @@ const showingNavigationDropdown = ref(false);
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile</ResponsiveNavLink
-                            >
+                                Profile
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
@@ -236,7 +238,27 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Content -->
             <main>
-                <slot />
+                <div class="py-12">
+                    <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
+                        <div
+                            class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
+                        >
+                            <div class="p-6 text-gray-900 dark:text-gray-100">
+                                <main
+                                    class="flex flex-col gap-6 justify-center items-center sm:flex-row"
+                                >
+                                    <!--                      Dropdown button-->
+                                    <CreateNewDropdown />
+
+                                    <!--                      Search component-->
+                                    <CustomeSearch />
+                                </main>
+
+                                <slot />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
