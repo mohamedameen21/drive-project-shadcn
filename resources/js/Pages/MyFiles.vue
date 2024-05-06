@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { router } from "@inertiajs/vue3";
+import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
 
 defineOptions({
     layout: AuthenticatedLayout,
@@ -8,6 +9,8 @@ defineOptions({
 
 const props = defineProps({
     files: Object,
+    folder: Object,
+    ancestors: Array,
 });
 
 const openFolder = (file) => {
@@ -18,7 +21,10 @@ const openFolder = (file) => {
 </script>
 
 <template>
-    <div v-if="files.data.length > 0" class="flex flex-col my-9">
+    <div class="mt-9 mb-5">
+        <FilesBreadCrumb :ancestors="ancestors" />
+    </div>
+    <div v-if="files.data.length > 0" class="flex flex-col">
         <div class="-m-1.5 overflow-x-auto">
             <div class="p-1.5 min-w-full inline-block align-middle">
                 <div class="overflow-hidden">
@@ -66,7 +72,7 @@ const openFolder = (file) => {
                                             <tr
                                                 v-for="file in files.data"
                                                 class="hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
-                                                @dblclick="openFolder(file)"
+                                                @click="openFolder(file)"
                                             >
                                                 <td
                                                     class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"

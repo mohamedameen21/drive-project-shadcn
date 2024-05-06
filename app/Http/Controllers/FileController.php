@@ -34,7 +34,12 @@ class FileController extends Controller
 
         $files = FileResource::collection($files);
 
-        return Inertia::render('MyFiles', compact('files'));
+        // destructing the ancestors to array, then appending the current folder at the end
+        $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
+
+        $folder = new FileResource($folder);
+
+        return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
     }
 
     public function createFolder(StoreFolderRequest $request)
