@@ -1,16 +1,71 @@
-<script setup lang="ts">
-import { ref } from "vue";
+<script lang="ts" setup>
+import { onMounted, ref } from "vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
-import { Link } from "@inertiajs/vue3";
+import { Link, useForm, usePage } from "@inertiajs/vue3";
 import Dark from "@/Pages/Dark.vue";
+import { emitter, FILE_UPLOAD_STARTED } from "@/event-bus";
 import CustomeSearch from "@/Components/CustomeSearch.vue";
 import CreateNewDropdown from "@/Components/CreateNewDropdown.vue";
 
+const page = usePage();
+const fileUploadForm = useForm({
+    files: [],
+    relative_paths: [], // for subdirectory structure on Upload folder option
+    parent_id: null,
+});
+
 const showingNavigationDropdown = ref(false);
+
+const dragOver = ref(false);
+
+onMounted(() => {
+    emitter.on(FILE_UPLOAD_STARTED, uploadFiles);
+});
+
+const uploadFiles = (files) => {
+    console.log("uploading files");
+    fileUploadForm.parent_id = page.props.folder.id;
+    fileUploadForm.files = files;
+
+    //The webkitRelativePath will have the subdirectory structure of the files
+    // As the File object will only give the idea only on the file name & type etc not path.
+    // Then we are slicing the first 20 files path.
+    // the Files are automatically skipped by the php as the default config of the file upload limit is 20 files per request
+    fileUploadForm.relative_paths = [...files]
+        .map((file) => file.webkitRelativePath)
+        .slice(0, 20);
+
+    fileUploadForm.post(route("file.store"));
+    console.log("bro");
+};
+
+const onDragOver = (event) => {
+    console.log(" drag over");
+    dragOver.value = true;
+};
+
+const onDragLeave = (event) => {
+    console.log(" drag leave");
+    dragOver.value = false;
+};
+
+const handleDrop = (event) => {
+    console.log("dropped");
+    dragOver.value = false;
+    console.log(event);
+    console.log(event.dataTransfer.files);
+    const files = event.dataTransfer.files;
+
+    if (!files.length) {
+        return;
+    }
+
+    uploadFiles(files);
+};
 </script>
 
 <template>
@@ -18,6 +73,7 @@ const showingNavigationDropdown = ref(false);
         <Dark />
 
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+            <!--          Navigation -->
             <nav
                 class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
             >
@@ -39,29 +95,29 @@ const showingNavigationDropdown = ref(false);
                                 class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
-                                    :href="route('dashboard')"
                                     :active="route().current('dashboard')"
+                                    :href="route('dashboard')"
                                 >
                                     Dashboard
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('myFiles')"
                                     :active="route().current('myFiles')"
+                                    :href="route('myFiles')"
                                 >
                                     My Files
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('shared-with-me')"
                                     :active="route().current('shared-with-me')"
+                                    :href="route('shared-with-me')"
                                 >
                                     Shared with me
                                 </NavLink>
 
                                 <NavLink
-                                    :href="route('shared-by-me')"
                                     :active="route().current('shared-my-me')"
+                                    :href="route('shared-by-me')"
                                 >
                                     Shared by me
                                 </NavLink>
@@ -75,21 +131,21 @@ const showingNavigationDropdown = ref(false);
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
-                                                type="button"
                                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
+                                                type="button"
                                             >
                                                 {{ $page.props.auth.user.name }}
 
                                                 <svg
                                                     class="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
                                                     fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg"
                                                 >
                                                     <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                                                         clip-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        fill-rule="evenodd"
                                                     />
                                                 </svg>
                                             </button>
@@ -104,8 +160,8 @@ const showingNavigationDropdown = ref(false);
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
-                                            method="post"
                                             as="button"
+                                            method="post"
                                         >
                                             Log Out
                                         </DropdownLink>
@@ -123,16 +179,16 @@ const showingNavigationDropdown = ref(false);
                         <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
                             <button
+                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
                                 @click="
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
                             >
                                 <svg
                                     class="h-6 w-6"
-                                    stroke="currentColor"
                                     fill="none"
+                                    stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
                                     <path
@@ -141,10 +197,10 @@ const showingNavigationDropdown = ref(false);
                                             'inline-flex':
                                                 !showingNavigationDropdown,
                                         }"
+                                        d="M4 6h16M4 12h16M4 18h16"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
                                     />
                                     <path
                                         :class="{
@@ -152,10 +208,10 @@ const showingNavigationDropdown = ref(false);
                                             'inline-flex':
                                                 showingNavigationDropdown,
                                         }"
+                                        d="M6 18L18 6M6 6l12 12"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
                                     />
                                 </svg>
                             </button>
@@ -173,15 +229,15 @@ const showingNavigationDropdown = ref(false);
                 >
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink
-                            :href="route('dashboard')"
                             :active="route().current('dashboard')"
+                            :href="route('dashboard')"
                         >
                             Dashboard
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
-                            :href="route('myFiles')"
                             :active="route().current('myFiles')"
+                            :href="route('myFiles')"
                         >
                             My Files
                         </ResponsiveNavLink>
@@ -208,12 +264,12 @@ const showingNavigationDropdown = ref(false);
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
-                                method="post"
                                 as="button"
+                                method="post"
                             >
                                 Log Out
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink href="#" as="button">
+                            <ResponsiveNavLink as="button" href="#">
                                 <div>
                                     Theme
                                     <span class="ms-4">
@@ -226,39 +282,50 @@ const showingNavigationDropdown = ref(false);
                 </div>
             </nav>
 
-            <!--             Page Heading -->
-            <!--            <header-->
-            <!--                class="bg-white dark:bg-gray-800 shadow"-->
-            <!--                v-if="$slots.header"-->
-            <!--            >-->
-            <!--                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">-->
-            <!--                    <slot name="header" />-->
-            <!--                </div>-->
-            <!--            </header>-->
-
             <!-- Page Content -->
-            <main>
-                <div class="py-12">
-                    <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
-                        <div
-                            class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
+            <main
+                :class="dragOver ? 'h-screen box-border' : ''"
+                @drop.prevent="handleDrop"
+                @dragover.prevent="onDragOver"
+                @dragleave.prevent="onDragLeave"
+            >
+                <template v-if="dragOver">
+                    <header
+                        class="border-dashed border-2 border-gray-400 h-full p-12 flex"
+                    >
+                        <p
+                            class="font-semibold text-gray-900 dark:text-white w-fit h-fit m-auto"
                         >
-                            <div class="p-6 text-gray-900 dark:text-gray-100">
-                                <main
-                                    class="flex flex-col gap-6 justify-center items-center sm:flex-row"
+                            Drag & Drop Your Files Here
+                        </p>
+                    </header>
+                </template>
+
+                <template v-else>
+                    <div class="py-12">
+                        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
+                            <div
+                                class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
+                            >
+                                <div
+                                    class="p-6 text-gray-900 dark:text-gray-100"
                                 >
-                                    <!--                      Dropdown button-->
-                                    <CreateNewDropdown />
+                                    <main
+                                        class="flex flex-col gap-6 justify-center items-center sm:flex-row"
+                                    >
+                                        <!--                      Dropdown button-->
+                                        <CreateNewDropdown />
 
-                                    <!--                      Search component-->
-                                    <CustomeSearch />
-                                </main>
+                                        <!--                      Search component-->
+                                        <CustomeSearch />
+                                    </main>
 
-                                <slot />
+                                    <slot />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </template>
             </main>
         </div>
     </div>

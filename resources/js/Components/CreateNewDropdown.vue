@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { CloudUpload, Folder, FolderPlus, Plus } from "lucide-vue-next";
+<script lang="ts" setup>
+import { Folder, Plus } from "lucide-vue-next";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,11 +11,12 @@ import {
 } from "@/shadcn/ui/dropdown-menu";
 
 import { Button } from "@/shadcn/ui/button";
-import Input from "../shadcn/ui/input/Input.vue";
 import { ref } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { Toaster } from "@/shadcn/ui/toast";
 import CreateNewFolderModal from "@/Components/CreateNewFolderModal.vue";
+import FileUploadMenuItem from "@/Components/FileUploadMenuItem.vue";
+import FolderUploadMenuItem from "@/Components/FolderUploadMenuItem.vue";
 
 const page = usePage();
 
@@ -30,7 +31,7 @@ const updateModal = (value) => {
 
     <div class="w-full sm:max-w-[400px]">
         <DropdownMenu class="w-72 sm:max-w-[400px]">
-            <DropdownMenuTrigger class="w-72 sm:max-w-[400px]" as-child>
+            <DropdownMenuTrigger as-child class="w-72 sm:max-w-[400px]">
                 <Button class="w-full py-6" variant="outline">
                     <Plus class="mr-2 h-4 w-4" />
                     Create New
@@ -47,18 +48,10 @@ const updateModal = (value) => {
                         </button>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <button class="w-full flex items-center relative">
-                            <CloudUpload class="mr-2 h-4 w-4" />
-                            <span>Upload File</span>
-                            <input
-                                type="file"
-                                class="absolute left-0 right-0 top-0 bottom-0 cursor-pointer opacity-0 w-full h-full"
-                            />
-                        </button>
+                        <FileUploadMenuItem />
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <FolderPlus class="mr-2 h-4 w-4" />
-                        <span>Upload Folder</span>
+                        <FolderUploadMenuItem />
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

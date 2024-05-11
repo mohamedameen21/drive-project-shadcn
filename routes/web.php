@@ -36,6 +36,7 @@ Route::controller(FileController::class)
         Route::get('/my-files/{folder?}', 'myFiles')
             ->where('folder', '(.*)')->name('myFiles');
         Route::post('/folder', 'createFolder')->name('folder.store');
+        Route::post('/file', 'store')->name('file.store');
     });
 
 Route::middleware('auth')->group(function () {
