@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { router } from "@inertiajs/vue3";
 import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
@@ -16,7 +16,7 @@ const props = defineProps({
 const openFolder = (file) => {
     if (!file.is_folder) return;
 
-    router.visit(route("myFiles", { folder: file.name }));
+    router.visit(route("myFiles", { folderPath: file.path }));
 };
 </script>
 
@@ -40,26 +40,26 @@ const openFolder = (file) => {
                                         <thead>
                                             <tr>
                                                 <th
-                                                    scope="col"
                                                     class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                    scope="col"
                                                 >
                                                     Name
                                                 </th>
                                                 <th
-                                                    scope="col"
                                                     class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                    scope="col"
                                                 >
                                                     Owner
                                                 </th>
                                                 <th
-                                                    scope="col"
                                                     class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                    scope="col"
                                                 >
                                                     Last Modified
                                                 </th>
                                                 <th
-                                                    scope="col"
                                                     class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                    scope="col"
                                                 >
                                                     Size
                                                 </th>
@@ -92,12 +92,13 @@ const openFolder = (file) => {
                                                 <td
                                                     class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"
                                                 >
-                                                    <button
-                                                        type="button"
-                                                        class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400"
-                                                    >
-                                                        {{ file.size }}
-                                                    </button>
+                                                    {{ file.size }}
+                                                    <!--                                                    <button-->
+                                                    <!--                                                        class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400"-->
+                                                    <!--                                                        type="button"-->
+                                                    <!--                                                    >-->
+                                                    <!--                                                        -->
+                                                    <!--                                                    </button>-->
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -111,7 +112,7 @@ const openFolder = (file) => {
         </div>
     </div>
 
-    <div class="p-7 text-sm dark:text-gray-300 text-gray-600 my-9" v-else>
+    <div v-else class="p-7 text-sm dark:text-gray-300 text-gray-600 my-9">
         No Folders Found, Drive is empty
     </div>
 </template>

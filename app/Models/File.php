@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
 
@@ -62,6 +63,11 @@ class File extends Model
              * And because of that, here we are checking if the current folder's parent is root or not, instead of checking if the current folder is root or not
              * if the parent is root, the for the user he create's the folder directly in the root directory
             */
+
+            Log::info('Creating file');
+            Log::info('Model '.$model->name);
+            Log::info('Parent '.$model?->parent?->name);
+
             $model->path = (($model->parent?->isRoot()) ? '' : $model->parent->path.'/')
                 .Str::slug($model->name);
         });

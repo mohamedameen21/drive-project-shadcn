@@ -18,21 +18,20 @@ defineProps({
     <Breadcrumb>
         <BreadcrumbList>
             <BreadcrumbItem
-                class="text-base"
                 v-for="(folder, index) in ancestors.data"
+                class="text-base"
             >
                 <BreadcrumbLink v-if="!folder.parent_id">
                     <Link
                         :href="route('myFiles')"
                         class="flex items-center justify-center gap-2"
                     >
-                        <Home size="16" class="inline-block text-center" />
+                        <Home class="inline-block text-center" size="16" />
                         <span>My Files</span>
                     </Link>
                 </BreadcrumbLink>
-
                 <BreadcrumbLink v-else>
-                    <Link :href="route('myFiles', { folder: folder.name })">
+                    <Link :href="route('myFiles', { folderPath: folder.path })">
                         <span>{{ folder.name }}</span>
                     </Link>
                 </BreadcrumbLink>

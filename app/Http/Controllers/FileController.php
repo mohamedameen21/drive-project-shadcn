@@ -9,26 +9,28 @@ use App\Models\File;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class FileController extends Controller
 {
-    public function myFiles(?string $folder = null)
+    public function myFiles(?string $folderPath = null)
     {
-        if ($folder) {
-            $folder = File::query()
-                ->where('name', $folder)
+        // because the same file name might be in different folders
+        // so, only the path will be unique not name
+        if ($folderPath) {
+            $folderPath = File::query()
+                ->where('path', $folderPath)
                 ->where('created_by', Auth::id())
                 ->firstOrFail();
         }
-        $defaultRootFolder = File::getDefaultRoot(Auth::id());
 
-        if (! $folder) {
-            $folder = $defaultRootFolder;
+        if (! $folderPath) {
+            $folderPath = File::getDefaultRoot(Auth::id());
         }
 
         $files = File::query()
-            ->where('parent_id', $folder->id)
+            ->where('parent_id', $folderPath->id)
             ->where('created_by', Auth::id())
             ->orderBy('is_folder', 'desc')
             ->orderBy('created_at', 'desc')
@@ -37,11 +39,11 @@ class FileController extends Controller
         $files = FileResource::collection($files);
 
         // destructing the ancestors to array, then appending the current folder at the end
-        $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
+        $ancestors = FileResource::collection([...$folderPath->ancestors, $folderPath]);
 
-        $folder = new FileResource($folder);
+        $folderPath = new FileResource($folderPath);
 
-        return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
+        return Inertia::render('MyFiles', compact('files', 'folderPath', 'ancestors'));
     }
 
     public function createFolder(StoreFolderRequest $request)
@@ -57,13 +59,13 @@ class FileController extends Controller
 
             $parentFolder->appendNode($file);
 
-            //            Note: The path of this folder will be set in the boot method of the File model
-
+            //          Note: The path of this folder will be set in the boot method of the File model
             DB::commit();
 
             return back()->with('message', 'Folder created successfully');
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage(), $e->getTrace());
 
             return back()->with('message', 'Failed to create folder');
         }
@@ -77,17 +79,45 @@ class FileController extends Controller
         $fileTree = $request->file_tree;
 
         if (! empty($fileTree)) {
-            $this->storeFileTree($fileTree, $parent, $user);
+            $this->saveFileTree($fileTree, $parent, $user);
         } else {
             foreach ($data['files'] as $file) {
                 $path = $file->store('/files/'.$user->id);
-                $model = new File();
-                $model->name = $file->getClientOriginalName();
-                $model->is_folder = false;
-                $model->mime = $file->getMimeType();
-                $model->size = $file->getSize();
-                $parent->appendNode($model);
+                $fileNode = $this->createFile($file, $path);
+                $parent->appendNode($fileNode);
             }
         }
+    }
+
+    private function saveFileTree($fileTree, $parent, $user)
+    {
+        foreach ($fileTree as $name => $file) {
+            // if this is an array then this is a folder so, creating folder
+            if (is_array($file)) {
+                $folder = new File();
+                $folder->is_folder = 1;
+                $folder->name = $name;
+
+                $parent->appendNode($folder);
+                $this->saveFileTree($file, $folder, $user);
+            } else {
+                // it is a file
+                $path = $file->store('/files/'.$user->id);
+                $fileNode = $this->createFile($file, $path);
+                $parent->appendNode($fileNode);
+            }
+        }
+    }
+
+    private function createFile($file, $path)
+    {
+        $model = new File();
+        $model->storage_path = $path;
+        $model->name = $file->getClientOriginalName();
+        $model->is_folder = false;
+        $model->mime = $file->getMimeType();
+        $model->size = $file->getSize();
+
+        return $model;
     }
 }

@@ -61,7 +61,7 @@ class StoreFileRequest extends ParentIdBaseRequest
 
         $this->merge([
             'file_paths' => $paths,
-            'folder_name' => $this->detectFolderName($paths),
+            'folder_name' => $this->detectFolderName($paths), // taking this root folder name form the paths to check the uniqueness in the current directory
         ]);
     }
 
