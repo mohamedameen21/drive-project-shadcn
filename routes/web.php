@@ -33,8 +33,10 @@ Route::get('/dashboard', function () {
 Route::controller(FileController::class)
     ->middleware(['auth', 'verified'])
     ->group(function () {
-        Route::get('/my-files', 'myFiles')->name('myFiles');
+        Route::get('/my-files/{folderPath?}', 'myFiles')
+            ->where('folderPath', '(.*)')->name('myFiles');
         Route::post('/folder', 'createFolder')->name('folder.store');
+        Route::post('/file', 'store')->name('file.store');
     });
 
 Route::middleware('auth')->group(function () {
