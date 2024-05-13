@@ -10,7 +10,7 @@ import { Home } from "lucide-vue-next";
 import { Link } from "@inertiajs/vue3";
 
 defineProps({
-    ancestors: Array,
+    ancestors: Object,
 });
 </script>
 

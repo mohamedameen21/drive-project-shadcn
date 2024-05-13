@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { isVNode } from "vue";
 import { useToast } from "./use-toast";
 import { AlertTriangle, CircleCheck } from "lucide-vue-next";
@@ -15,7 +15,7 @@ const { toasts } = useToast();
 </script>
 
 <template>
-    <ToastProvider duration="2500">
+    <ToastProvider :duration="2500">
         <Toast v-for="toast in toasts" :key="toast.id" v-bind="toast">
             <div class="grid gap-1">
                 <ToastTitle v-if="toast.title">

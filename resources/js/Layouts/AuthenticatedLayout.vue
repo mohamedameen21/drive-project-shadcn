@@ -8,7 +8,7 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Link, useForm, usePage } from "@inertiajs/vue3";
 import Dark from "@/Pages/Dark.vue";
 import { emitter, FILE_UPLOAD_STARTED } from "@/event-bus";
-import CustomeSearch from "@/Components/CustomeSearch.vue";
+import CustomSearch from "@/Components/CustomSearch.vue";
 import CreateNewDropdown from "@/Components/CreateNewDropdown.vue";
 
 const page = usePage();
@@ -27,7 +27,6 @@ onMounted(() => {
 });
 
 const uploadFiles = (files) => {
-    console.log("uploading files");
     fileUploadForm.parent_id = page.props.folder.id;
     fileUploadForm.files = files;
 
@@ -40,24 +39,18 @@ const uploadFiles = (files) => {
         .slice(0, 20);
 
     fileUploadForm.post(route("file.store"));
-    console.log("bro");
 };
 
 const onDragOver = (event) => {
-    console.log(" drag over");
     dragOver.value = true;
 };
 
 const onDragLeave = (event) => {
-    console.log(" drag leave");
     dragOver.value = false;
 };
 
 const handleDrop = (event) => {
-    console.log("dropped");
     dragOver.value = false;
-    console.log(event);
-    console.log(event.dataTransfer.files);
     const files = event.dataTransfer.files;
 
     if (!files.length) {
@@ -317,7 +310,7 @@ const handleDrop = (event) => {
                                         <CreateNewDropdown />
 
                                         <!--                      Search component-->
-                                        <CustomeSearch />
+                                        <CustomSearch />
                                     </main>
 
                                     <slot />

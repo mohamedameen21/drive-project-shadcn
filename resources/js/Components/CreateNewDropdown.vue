@@ -30,7 +30,7 @@ const updateModal = (value) => {
     <Toaster />
 
     <div class="w-full sm:max-w-[400px]">
-        <DropdownMenu class="w-72 sm:max-w-[400px]">
+        <DropdownMenu>
             <DropdownMenuTrigger as-child class="w-72 sm:max-w-[400px]">
                 <Button class="w-full py-6" variant="outline">
                     <Plus class="mr-2 h-4 w-4" />

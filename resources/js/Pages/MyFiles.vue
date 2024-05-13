@@ -10,7 +10,7 @@ defineOptions({
 const props = defineProps({
     files: Object,
     folder: Object,
-    ancestors: Array,
+    ancestors: Object,
 });
 
 const openFolder = (file) => {
