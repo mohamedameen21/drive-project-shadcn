@@ -2,6 +2,20 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { router } from "@inertiajs/vue3";
 import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
+import getFileType from "@/helpers/getFileType";
+import {
+    FileArchive,
+    FileAudio,
+    FileCheck,
+    FileSpreadsheet,
+    FileText,
+    FileType,
+    Folder,
+    Image,
+    Minus,
+    Presentation,
+    Video,
+} from "lucide-vue-next";
 
 defineOptions({
     layout: AuthenticatedLayout,
@@ -17,6 +31,19 @@ const openFolder = (file) => {
     if (!file.is_folder) return;
 
     router.visit(route("myFiles", { folderPath: file.path }));
+};
+
+const fileIconMapper = {
+    folder: Folder,
+    zip: FileArchive,
+    video: Video,
+    audio: FileAudio,
+    img: Image,
+    txt: FileText,
+    ppt: Presentation,
+    xls: FileSpreadsheet,
+    pdf: FileCheck,
+    doc: FileType,
 };
 </script>
 
@@ -75,9 +102,18 @@ const openFolder = (file) => {
                                                 @click="openFolder(file)"
                                             >
                                                 <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"
+                                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200 flex gap-2 items-center"
                                                 >
-                                                    {{ file.name }}
+                                                    <component
+                                                        :is="
+                                                            fileIconMapper[
+                                                                getFileType(
+                                                                    file.mime,
+                                                                )
+                                                            ]
+                                                        "
+                                                    />
+                                                    <span>{{ file.name }}</span>
                                                 </td>
                                                 <td
                                                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200"
@@ -92,13 +128,14 @@ const openFolder = (file) => {
                                                 <td
                                                     class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"
                                                 >
-                                                    {{ file.size }}
-                                                    <!--                                                    <button-->
-                                                    <!--                                                        class="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400"-->
-                                                    <!--                                                        type="button"-->
-                                                    <!--                                                    >-->
-                                                    <!--                                                        -->
-                                                    <!--                                                    </button>-->
+                                                    <span
+                                                        v-if="file.is_folder"
+                                                        class="flex justify-end"
+                                                        ><Minus
+                                                    /></span>
+                                                    <span v-else>{{
+                                                        file.size
+                                                    }}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
