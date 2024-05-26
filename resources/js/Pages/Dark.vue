@@ -16,7 +16,7 @@ const mode = useColorMode();
     <DropdownMenu>
         <DropdownMenuTrigger as-child>
             <Button
-                class="absolute bottom-[30px] right-[20px] w-[60px] h-[60px] rounded-full"
+                class="fixed bottom-3.5 right-3.5 md:bottom-7 md:right-7 lg:bottom-14 lg:right-14 w-[60px] h-[60px] rounded-full"
                 variant="outline"
             >
                 <Icon
