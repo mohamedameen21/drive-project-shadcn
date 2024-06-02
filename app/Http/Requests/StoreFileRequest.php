@@ -21,17 +21,20 @@ class StoreFileRequest extends ParentIdBaseRequest
                 'array',
             ],
             'files.*' => [
-                'required',
+                'required_if:folder_name,null',
                 'file',
                 function ($attribute, $value, $fail) {
-                    $fileExists = File::query()->where('name', $value->getClientOriginalName())
-                        ->where('parent_id', $this->parent_id ?? File::getDefaultRoot(Auth::id()))
-                        ->where('created_by', Auth::id())
-                        ->whereNull('deleted_at')
-                        ->exists();
+                    if (! $this->folder_name) {
+                        $fileExists = File::query()->where('name', $value->getClientOriginalName())
+                            ->where('parent_id', $this->parent_id ?? File::getDefaultRoot(Auth::id()))
+                            ->where('created_by', Auth::id())
+                            ->whereNull('deleted_at')
+                            ->exists();
 
-                    if ($fileExists) {
-                        $fail('File "'.$value->getClientOriginalName().'" already exists');
+                        if ($fileExists) {
+                            $fail('File "'.$value->getClientOriginalName().'" already exists');
+
+                        }
                     }
                 },
             ],

@@ -5,7 +5,6 @@ import Input from "../shadcn/ui/input/Input.vue";
 import { emitter, FILE_UPLOAD_STARTED } from "@/event-bus";
 
 const onChange = (event) => {
-    console.log(event.target.files);
     emitter.emit(FILE_UPLOAD_STARTED, event.target.files);
 };
 </script>
