@@ -7,6 +7,7 @@ use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ use Inertia\Inertia;
 
 class FileController extends Controller
 {
-    public function myFiles(?string $folderPath = null)
+    public function myFiles(Request $request, ?string $folderPath = null)
     {
         // because the same file name might be in different folders
         // so, only the path will be unique not name
@@ -38,6 +39,10 @@ class FileController extends Controller
             ->paginate(10);
 
         $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
 
         // destructing the ancestors to array, then appending the current folder at the end
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
