@@ -51,6 +51,7 @@ function getFileType(mime) {
         case "video/ogg":
         case "video/webm":
         case "video/mpeg":
+        case "video/mkv":
         case "video/quicktime":
             return "video";
 
