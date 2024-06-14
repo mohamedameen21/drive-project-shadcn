@@ -16,8 +16,10 @@ import {
     Presentation,
     Video,
 } from "lucide-vue-next";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import axios from "axios";
+import { Checkbox } from "@/shadcn/ui/checkbox";
+import { vOnLongPress } from "@vueuse/components";
 
 defineOptions({
     layout: AuthenticatedLayout,
@@ -37,11 +39,61 @@ const allFiles = ref({
     data: props.files.data,
     next: props.files.links.next,
 });
+const selectedFiles = ref({});
+const isAllFilesSelected = ref(false);
+const lastSelectedFile = ref(null);
 
+// will track all the reactive properties changes that is in the function callback
+watchEffect(() => {
+    allFiles.value.data.forEach((file) => {
+        selectedFiles.value[file.id] = isAllFilesSelected.value;
+    });
+});
+
+const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+    );
+};
 const openFolder = (file) => {
     if (!file.is_folder) return;
 
     router.visit(route("myFiles", { folderPath: file.path }));
+};
+
+const toggleCheckbox = (selectedFile, event) => {
+    console.log("hi");
+    if (!event) {
+        selectedFiles.value[selectedFile.id] =
+            !selectedFiles.value[selectedFile.id];
+        return;
+    }
+
+    if (event.shiftKey && lastSelectedFile.value !== null) {
+        console.log("shift key pressed");
+        console.log(lastSelectedFile.value);
+        console.log(selectedFile);
+        console.log(allFiles.value.data.indexOf(lastSelectedFile.value));
+        console.log(allFiles.value.data.indexOf(selectedFile));
+        const start = Math.min(
+            allFiles.value.data.indexOf(selectedFile),
+            allFiles.value.data.indexOf(lastSelectedFile.value),
+        );
+        const end = Math.max(
+            allFiles.value.data.indexOf(selectedFile),
+            allFiles.value.data.indexOf(lastSelectedFile.value),
+        );
+        console.log(start);
+        console.log(end);
+        allFiles.value.data.slice(start, end + 1).forEach((currentFile) => {
+            selectedFiles.value[currentFile.id] = true;
+        });
+    } else {
+        selectedFiles.value[selectedFile.id] =
+            !selectedFiles.value[selectedFile.id];
+    }
+
+    lastSelectedFile.value = selectedFile;
 };
 
 const fileIconMapper = {
@@ -82,6 +134,30 @@ onMounted(() => {
 
     observer.observe(loadMoreRecordsContainerElement.value);
 });
+
+const longPressedDirective = ref(false);
+
+function onLongPressCallbackDirective(file, e: PointerEvent) {
+    longPressedDirective.value = true;
+    toggleCheckbox(file, null);
+}
+
+function resetDirective() {
+    longPressedDirective.value = false;
+}
+
+// when no other file is selected  longPressedDirective
+watchEffect(() => {
+    if (Object.values(selectedFiles.value).every((value) => !value)) {
+        resetDirective();
+        isAllFilesSelected.value = false;
+    }
+
+    if (Object.values(selectedFiles.value).every((value) => value)) {
+        isAllFilesSelected.value = true;
+        longPressedDirective.value = true;
+    }
+});
 </script>
 
 <template>
@@ -90,6 +166,9 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 overflow-y-auto">
+        <!--        <p>Long Pressed: {{ longPressedComponent }}</p>-->
+        <p class="text-white">{{ selectedFiles.value }}</p>
+
         <div v-if="allFiles.data.length > 0" class="flex flex-col">
             <div class="-m-1.5">
                 <div class="p-1.5 min-w-full inline-block align-middle">
@@ -107,6 +186,17 @@ onMounted(() => {
                                         >
                                             <thead>
                                                 <tr>
+                                                    <th
+                                                        class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                        scope="col"
+                                                    >
+                                                        <Checkbox
+                                                            v-model:checked="
+                                                                isAllFilesSelected
+                                                            "
+                                                        />
+                                                    </th>
+
                                                     <th
                                                         class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
                                                         scope="col"
@@ -139,9 +229,45 @@ onMounted(() => {
                                             >
                                                 <tr
                                                     v-for="file in allFiles.data"
+                                                    :key="`${file.id}-${selectedFiles[file.id]}`"
+                                                    v-on-long-press.prevent="
+                                                        (e) => {
+                                                            onLongPressCallbackDirective(
+                                                                file,
+                                                                e,
+                                                            );
+                                                        }
+                                                    "
+                                                    :class="
+                                                        selectedFiles[file.id]
+                                                            ? 'bg-gray-100 dark:bg-neutral-700'
+                                                            : ''
+                                                    "
                                                     class="hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
-                                                    @click="openFolder(file)"
+                                                    @click="
+                                                        isMobile() &&
+                                                        !longPressedDirective
+                                                            ? openFolder(file)
+                                                            : toggleCheckbox(
+                                                                  file,
+                                                                  $event,
+                                                              )
+                                                    "
+                                                    @dblclick="
+                                                        isMobile()
+                                                            ? null
+                                                            : openFolder(file)
+                                                    "
                                                 >
+                                                    <td class="text-center">
+                                                        <Checkbox
+                                                            v-model:checked="
+                                                                selectedFiles[
+                                                                    file.id
+                                                                ]
+                                                            "
+                                                        />
+                                                    </td>
                                                     <td
                                                         class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200 flex gap-2 items-center"
                                                     >
