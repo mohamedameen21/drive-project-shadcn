@@ -165,7 +165,7 @@ watchEffect(() => {
         <FilesBreadCrumb :ancestors="ancestors" />
     </div>
 
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-x-scroll overflow-y-clip">
         <!--        <p>Long Pressed: {{ longPressedComponent }}</p>-->
         <p class="text-white">{{ selectedFiles.value }}</p>
 
