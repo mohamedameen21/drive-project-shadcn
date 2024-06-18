@@ -16,9 +16,11 @@ class DestroyFilesRequest extends ParentIdBaseRequest
         return array_merge(parent::rules(), [
             'all' => ['sometimes', 'nullable', 'boolean'],
             'ids' => ['required_unless:all,true', 'array'],
-            'ids.*' => Rule::exists('files', 'id')->where(function ($query) {
-                $query->where('created_by', \Auth::id());
-            }),
+            'ids.*' => [
+                'required_unless:all,true', 'integer', Rule::exists('files', 'id')->where(function ($query) {
+                    $query->where('created_by', $this->user()->id);
+                }),
+            ],
         ]);
     }
 }

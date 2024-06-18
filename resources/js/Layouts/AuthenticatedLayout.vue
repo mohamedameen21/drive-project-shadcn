@@ -55,7 +55,16 @@ const uploadFiles = (files) => {
         onFinish: () => {
             fileUploadForm.clearErrors();
             fileUploadForm.reset();
-            window.location.reload();
+            // window.location.reload();
+        },
+        onSuccess: () => {
+            toast({
+                description: "Files uploaded successfully",
+                variant: "success",
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         },
     });
 };

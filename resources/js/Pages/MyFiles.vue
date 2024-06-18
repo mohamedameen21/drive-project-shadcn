@@ -16,10 +16,23 @@ import {
     Presentation,
     Video,
 } from "lucide-vue-next";
-import { onMounted, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import axios from "axios";
 import { Checkbox } from "@/shadcn/ui/checkbox";
 import { vOnLongPress } from "@vueuse/components";
+import { toast } from "@/shadcn/ui/toast";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/shadcn/ui/alert-dialog";
+import { Button } from "@/shadcn/ui/button";
 
 defineOptions({
     layout: AuthenticatedLayout,
@@ -42,9 +55,17 @@ const allFiles = ref({
 const selectedFiles = ref({});
 const isAllFilesSelected = ref(false);
 const lastSelectedFile = ref(null);
+const longPressedDirective = ref(false);
+
+const selectedIds = computed(() => {
+    return Object.entries(selectedFiles.value)
+        .filter(([key, value]) => value)
+        .map(([key, value]) => key);
+});
 
 // will track all the reactive properties changes that is in the function callback
 watchEffect(() => {
+    // for newly loaded files through infinite scroll
     allFiles.value.data.forEach((file) => {
         selectedFiles.value[file.id] = isAllFilesSelected.value;
     });
@@ -62,7 +83,6 @@ const openFolder = (file) => {
 };
 
 const toggleCheckbox = (selectedFile, event) => {
-    console.log("hi");
     if (!event) {
         selectedFiles.value[selectedFile.id] =
             !selectedFiles.value[selectedFile.id];
@@ -70,11 +90,6 @@ const toggleCheckbox = (selectedFile, event) => {
     }
 
     if (event.shiftKey && lastSelectedFile.value !== null) {
-        console.log("shift key pressed");
-        console.log(lastSelectedFile.value);
-        console.log(selectedFile);
-        console.log(allFiles.value.data.indexOf(lastSelectedFile.value));
-        console.log(allFiles.value.data.indexOf(selectedFile));
         const start = Math.min(
             allFiles.value.data.indexOf(selectedFile),
             allFiles.value.data.indexOf(lastSelectedFile.value),
@@ -83,8 +98,6 @@ const toggleCheckbox = (selectedFile, event) => {
             allFiles.value.data.indexOf(selectedFile),
             allFiles.value.data.indexOf(lastSelectedFile.value),
         );
-        console.log(start);
-        console.log(end);
         allFiles.value.data.slice(start, end + 1).forEach((currentFile) => {
             selectedFiles.value[currentFile.id] = true;
         });
@@ -135,8 +148,6 @@ onMounted(() => {
     observer.observe(loadMoreRecordsContainerElement.value);
 });
 
-const longPressedDirective = ref(false);
-
 function onLongPressCallbackDirective(file, e: PointerEvent) {
     longPressedDirective.value = true;
     toggleCheckbox(file, null);
@@ -158,11 +169,62 @@ watchEffect(() => {
         longPressedDirective.value = true;
     }
 });
+
+const deleteFiles = async () => {
+    try {
+        const response = await axios.delete(route("file.destroy"), {
+            data: {
+                parent_id: props.folder.id,
+                all: isAllFilesSelected.value,
+                ids: isAllFilesSelected.value ? [] : selectedIds.value,
+            },
+        });
+
+        if (response.data.status === "success") {
+            toast({
+                description: "Files deleted Successfully",
+                variant: "success",
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            toast({
+                description: "Error occurred while deleting files",
+                variant: "error",
+            });
+        }
+    } catch (e) {
+        toast({
+            description: "Error occurred while deleting files",
+            variant: "error",
+        });
+    }
+};
 </script>
 
 <template>
-    <div class="mt-9 mb-5">
+    <div class="mt-9 mb-5 flex justify-between">
         <FilesBreadCrumb :ancestors="ancestors" />
+        <AlertDialog>
+            <AlertDialogTrigger as="button" :disabled="selectedIds.length == 0">
+                <Button :disabled="selectedIds.length == 0">Delete</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure want to delete these selected files?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction @click="deleteFiles"
+                        >Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
 
     <div class="flex-1 overflow-x-scroll overflow-y-clip">
