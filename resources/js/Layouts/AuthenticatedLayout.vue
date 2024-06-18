@@ -55,6 +55,16 @@ const uploadFiles = (files) => {
         onFinish: () => {
             fileUploadForm.clearErrors();
             fileUploadForm.reset();
+            // window.location.reload();
+        },
+        onSuccess: () => {
+            toast({
+                description: "Files uploaded successfully",
+                variant: "success",
+            });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         },
     });
 };
@@ -83,7 +93,7 @@ const handleDrop = (event) => {
     <div>
         <Dark />
 
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="min-h-screen bg-gray-100 dark:bg-black">
             <!--          Navigation -->
             <Navigation
                 :showingNavigationDropdown="showingNavigationDropdown"
@@ -112,7 +122,7 @@ const handleDrop = (event) => {
                     <div class="py-12">
                         <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
                             <div
-                                class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
+                                class="bg-white dark:bg-[#111] overflow-hidden shadow-sm sm:rounded-lg"
                             >
                                 <div
                                     class="p-6 text-gray-900 dark:text-gray-100"

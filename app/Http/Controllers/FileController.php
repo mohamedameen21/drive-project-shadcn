@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DestroyFilesRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
+use App\Http\Responses\JsonResponse;
 use App\Models\File;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class FileController extends Controller
 {
@@ -84,9 +87,10 @@ class FileController extends Controller
         $user = Auth::user();
         $fileTree = $request->file_tree;
 
-        if (! empty($fileTree)) {
+        if (! empty($fileTree)) { // uploading a folder
             $this->saveFileTree($fileTree, $parent, $user);
         } else {
+            // uploading files
             foreach ($data['files'] as $file) {
                 $path = $file->store('/files/'.$user->id);
                 $fileNode = $this->createFile($file, $path);
@@ -125,5 +129,46 @@ class FileController extends Controller
         $model->size = $file->getSize();
 
         return $model;
+    }
+
+    public function destroy(DestroyFilesRequest $request)
+    {
+        //        dd($request->all());
+        DB::beginTransaction();
+        try {
+            $data = $request->validated();
+            $parent = $request->parent ?? File::getDefaultRoot(Auth::id());
+
+            if ($data['all']) {
+                $children = $parent->children;
+
+                foreach ($children as $child) {
+                    $child->delete();
+                }
+            } else {
+                foreach ($data['ids'] ?? [] as $id) {
+                    $file = File::find($id); // use find instead of findOrFail
+                    if ($file) {
+                        $file->delete();
+                    } else {
+                        Log::info("File with id {$id} not found");
+                    }
+                }
+            }
+            DB::commit();
+
+            return response()->json([
+                'status' => JsonResponse::SUCCESS,
+                'message' => 'Files deleted successfully',
+            ], ResponseAlias::HTTP_OK);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete files', $e->getTrace());
+
+            return response()->json([
+                'status' => JsonResponse::SUCCESS,
+                'message' => 'Files deleted successfully',
+            ], ResponseAlias::HTTP_BAD_REQUEST);
+        }
     }
 }

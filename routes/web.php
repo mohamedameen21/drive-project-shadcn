@@ -37,6 +37,7 @@ Route::controller(FileController::class)
             ->where('folderPath', '(.*)')->name('myFiles');
         Route::post('/folder', 'createFolder')->name('folder.store');
         Route::post('/file', 'store')->name('file.store');
+        Route::delete('/file', 'destroy')->name('file.destroy');
     });
 
 Route::middleware('auth')->group(function () {

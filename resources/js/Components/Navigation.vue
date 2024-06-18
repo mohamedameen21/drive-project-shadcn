@@ -14,7 +14,7 @@ const props = defineProps({
 
 <template>
     <nav
-        class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
+        class="bg-white dark:bg-[#111] border-b border-gray-100 dark:border-[#333]"
     >
         <!-- Primary Navigation Menu -->
         <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
@@ -68,7 +68,7 @@ const props = defineProps({
                             <template #trigger>
                                 <span class="inline-flex rounded-md">
                                     <button
-                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
+                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-[#222] hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
                                         type="button"
                                     >
                                         {{ $page.props.auth.user.name }}
