@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
@@ -41,15 +42,17 @@ class File extends Model
                 .Str::slug($model->name);
         });
 
-        static::deleted(function ($model) {
-            if (! $model->is_folder) {
-                Storage::delete($model->path);
-            } else {
-                $model->load('descendants');
-                $model->descendants->each(function ($descendant) {
-                    $descendant->delete();
-                });
-            }
+        static::deleting(function ($model) {
+
+            //            But currently we don't need this code, because we are using soft deleting the files.
+
+            //            if (! $model->is_folder) {
+            //                Storage::delete($model->storage_path);
+            //            } else {
+            //                $model->descendants->each(function ($descendant) {
+            //                    $descendant->delete();
+            //                });
+            //            }
         });
     }
 
