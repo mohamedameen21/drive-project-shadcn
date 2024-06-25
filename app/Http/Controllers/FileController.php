@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DestroyFilesRequest;
+use App\Http\Requests\FilesActionRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Resources\FileResource;
@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
@@ -131,7 +133,7 @@ class FileController extends Controller
         return $model;
     }
 
-    public function destroy(DestroyFilesRequest $request)
+    public function destroy(FilesActionRequest $request)
     {
         //        dd($request->all());
         DB::beginTransaction();
@@ -169,6 +171,90 @@ class FileController extends Controller
                 'status' => JsonResponse::SUCCESS,
                 'message' => 'Files deleted successfully',
             ], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function download(FilesActionRequest $request)
+    {
+        $data = $request->validated();
+        $parent = $request->parent ?? File::getDefaultRoot(Auth::id());
+
+        $all = $data['all'] ?? false;
+        $ids = $data['ids'] ?? [];
+
+        if (! $all && empty($ids)) {
+            return response()->json([
+                'status' => JsonResponse::ERROR,
+                'message' => 'No files selected to download',
+            ], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+
+        if ($all) {
+            $url = $this->createZip($parent->children);
+            $filename = $parent->name.'.zip';
+        } else {
+            if (count($ids) === 1) {
+                $file = File::findOrFail($ids[0]);
+                if ($file->is_folder) {
+                    if ($file->children->count() === 0) {
+                        return response()->json([
+                            'status' => JsonResponse::ERROR,
+                            'message' => 'Folder is empty',
+                        ], ResponseAlias::HTTP_BAD_REQUEST);
+                    }
+
+                    $url = $this->createZip($file->children);
+                    $filename = $file->name.'.zip';
+                } else {
+                    $newFilePath = 'public/downloads/'.pathinfo($file->storage_path, PATHINFO_BASENAME);
+                    Storage::copy($file->storage_path, $newFilePath);
+                    $url = asset(Storage::url($newFilePath));
+                    $filename = $file->name;
+                }
+            } else {
+                $files = File::whereIn('id', $ids)->get();
+                $url = $this->createZip($files);
+                $filename = $parent->name.'.zip';
+            }
+        }
+
+        return [
+            'url' => $url,
+            'filename' => $filename,
+        ];
+    }
+
+    private function createZip($files)
+    {
+        $hashedFileName = 'downloads/zip/'.Str::random(40).'.zip';
+        $publicPath = "public/downloads/$hashedFileName";
+
+        if (! is_dir($publicPath)) {
+            (Storage::makeDirectory(dirname($publicPath)));
+        }
+
+        $fullPath = Storage::path($publicPath);
+
+        $zip = new \ZipArchive();
+
+        if ($zip->open($fullPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $this->addFilesToZip($zip, $files);
+        }
+
+        $zip->close();
+
+        return asset(Storage::url($hashedFileName));
+    }
+
+    private function addFilesToZip($zip, $files, $ancestors = '')
+    {
+        foreach ($files as $file) {
+            $path = $ancestors.$file->name;
+            if ($file->is_folder) {
+                $this->addFilesToZip($zip, $file->children, $path.'/');
+            } else {
+                $zip->addFile(Storage::path($file->storage_path), $path);
+            }
         }
     }
 }

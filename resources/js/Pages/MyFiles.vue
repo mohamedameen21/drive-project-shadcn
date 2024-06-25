@@ -201,30 +201,51 @@ const deleteFiles = async () => {
         });
     }
 };
+
+const downloadFiles = () => {
+    const response = axios.post(route("file.download"), {
+        parent_id: props.folder.id,
+        all: isAllFilesSelected.value,
+        ids: isAllFilesSelected.value ? [] : selectedIds.value,
+    });
+
+    console.log(response);
+};
 </script>
 
 <template>
     <div class="mt-9 mb-5 flex justify-between">
         <FilesBreadCrumb :ancestors="ancestors" />
-        <AlertDialog>
-            <AlertDialogTrigger as="button" :disabled="selectedIds.length == 0">
-                <Button :disabled="selectedIds.length == 0">Delete</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Are you sure want to delete these selected files?
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction @click="deleteFiles"
-                        >Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        <div>
+            <Button
+                :disabled="selectedIds.length === 0"
+                class="mr-4"
+                @click="downloadFiles"
+                >Download</Button
+            >
+            <AlertDialog>
+                <AlertDialogTrigger
+                    as="button"
+                    :disabled="selectedIds.length == 0"
+                >
+                    <Button :disabled="selectedIds.length == 0">Delete</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure want to delete these selected files?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction @click="deleteFiles"
+                            >Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
     </div>
 
     <div class="flex-1 overflow-x-scroll overflow-y-clip">
