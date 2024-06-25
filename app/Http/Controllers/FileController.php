@@ -227,7 +227,7 @@ class FileController extends Controller
     private function createZip($files)
     {
         $hashedFileName = 'downloads/zip/'.Str::random(40).'.zip';
-        $publicPath = "public/downloads/$hashedFileName";
+        $publicPath = "public/$hashedFileName";
 
         if (! is_dir($publicPath)) {
             (Storage::makeDirectory(dirname($publicPath)));
