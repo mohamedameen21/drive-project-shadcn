@@ -71,11 +71,11 @@ watchEffect(() => {
     });
 });
 
-const isMobile = () => {
+const isMobile = computed(() => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
     );
-};
+});
 const openFolder = (file) => {
     if (!file.is_folder) return;
 
@@ -202,24 +202,42 @@ const deleteFiles = async () => {
     }
 };
 
-const downloadFiles = () => {
-    const response = axios.post(route("file.download"), {
-        parent_id: props.folder.id,
-        all: isAllFilesSelected.value,
-        ids: isAllFilesSelected.value ? [] : selectedIds.value,
-    });
+const downloadFiles = async () => {
+    try {
+        const response = await axios.post(route("file.download"), {
+            parent_id: props.folder.id,
+            all: isAllFilesSelected.value,
+            ids: isAllFilesSelected.value ? [] : selectedIds.value,
+        });
 
-    console.log(response);
+        console.log(response);
+        const a = document.createElement("a");
+        a.download = response.data.filename;
+        a.href = response.data.url;
+        a.click();
+
+        toast({
+            description: "Files Downloaded Successfully",
+            variant: "success",
+        });
+    } catch (e) {
+        toast({
+            description: "Error occurred while downloading files",
+            variant: "error",
+        });
+    }
 };
 </script>
 
 <template>
-    <div class="mt-9 mb-5 flex justify-between">
+    <div
+        class="mt-9 mb-5 flex flex-col gap-7 justify-between sm:flex-row items-center"
+    >
         <FilesBreadCrumb :ancestors="ancestors" />
-        <div>
+        <div class="flex">
             <Button
                 :disabled="selectedIds.length === 0"
-                class="mr-4"
+                class="mr-4 basis-1/2"
                 @click="downloadFiles"
                 >Download</Button
             >
@@ -227,8 +245,11 @@ const downloadFiles = () => {
                 <AlertDialogTrigger
                     as="button"
                     :disabled="selectedIds.length == 0"
+                    class="basis-1/2"
                 >
-                    <Button :disabled="selectedIds.length == 0">Delete</Button>
+                    <Button class="w-full" :disabled="selectedIds.length == 0"
+                        >Delete</Button
+                    >
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -268,10 +289,17 @@ const downloadFiles = () => {
                                             class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700"
                                         >
                                             <thead>
-                                                <tr>
+                                                <tr class="text-center">
                                                     <th
-                                                        class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
+                                                        class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500 text-center"
                                                         scope="col"
+                                                        style="
+                                                            text-align: center;
+                                                        "
+                                                        v-show="
+                                                            !isMobile ||
+                                                            longPressedDirective
+                                                        "
                                                     >
                                                         <Checkbox
                                                             v-model:checked="
@@ -328,7 +356,7 @@ const downloadFiles = () => {
                                                     "
                                                     class="hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
                                                     @click="
-                                                        isMobile() &&
+                                                        isMobile &&
                                                         !longPressedDirective
                                                             ? openFolder(file)
                                                             : toggleCheckbox(
@@ -337,12 +365,18 @@ const downloadFiles = () => {
                                                               )
                                                     "
                                                     @dblclick="
-                                                        isMobile()
+                                                        isMobile
                                                             ? null
                                                             : openFolder(file)
                                                     "
                                                 >
-                                                    <td class="text-center">
+                                                    <td
+                                                        class="text-center"
+                                                        v-show="
+                                                            !isMobile ||
+                                                            longPressedDirective
+                                                        "
+                                                    >
                                                         <Checkbox
                                                             v-model:checked="
                                                                 selectedFiles[
