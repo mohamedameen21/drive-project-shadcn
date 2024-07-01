@@ -51,6 +51,13 @@ const props = defineProps({
                         >
                             Shared by me
                         </NavLink>
+
+                        <NavLink
+                            :href="route('trash')"
+                            :active="route().current('trash')"
+                        >
+                            Trash
+                        </NavLink>
                     </div>
                 </div>
 
@@ -177,6 +184,13 @@ const props = defineProps({
                     :href="route('shared-by-me')"
                 >
                     Shared by me
+                </ResponsiveNavLink>
+
+                <ResponsiveNavLink
+                    :href="route('trash')"
+                    :active="route().current('trash')"
+                >
+                    Trash
                 </ResponsiveNavLink>
             </div>
 

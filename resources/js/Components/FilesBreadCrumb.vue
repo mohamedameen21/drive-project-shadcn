@@ -16,12 +16,12 @@ defineProps({
 
 <template>
     <Breadcrumb>
-        <BreadcrumbList>
+        <BreadcrumbList class="overflow-x-scroll flex-nowrap">
             <BreadcrumbItem
                 v-for="(folder, index) in ancestors.data"
                 class="text-base"
             >
-                <BreadcrumbLink v-if="!folder.parent_id">
+                <BreadcrumbLink v-if="!folder.parent_id" class="text-nowrap">
                     <Link
                         :href="route('myFiles')"
                         class="flex items-center justify-center gap-2"
@@ -30,7 +30,7 @@ defineProps({
                         <span>My Files</span>
                     </Link>
                 </BreadcrumbLink>
-                <BreadcrumbLink v-else>
+                <BreadcrumbLink v-else class="text-nowrap">
                     <Link :href="route('myFiles', { folderPath: folder.path })">
                         <span>{{ folder.name }}</span>
                     </Link>

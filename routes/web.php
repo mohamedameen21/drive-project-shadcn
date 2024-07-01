@@ -35,9 +35,16 @@ Route::controller(FileController::class)
     ->group(function () {
         Route::get('/my-files/{folderPath?}', 'myFiles')
             ->where('folderPath', '(.*)')->name('myFiles');
+
+        Route::get('/trash', 'trash')->name('trash');
+        Route::delete('/trash', 'permanentDelete')->name('trash.delete');
+        Route::post('/trash', 'restoreFiles')->name('trash.restore');
+
         Route::post('/folder', 'createFolder')->name('folder.store');
+
         Route::post('/file', 'store')->name('file.store');
         Route::delete('/file', 'destroy')->name('file.destroy');
+
         Route::post('download', 'download')->name('file.download');
     });
 
