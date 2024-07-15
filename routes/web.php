@@ -26,9 +26,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+//Route::get('/dashboard', function () {
+//    return Inertia::render('Dashboard');
+//})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::controller(FileController::class)
     ->middleware(['auth', 'verified'])
@@ -38,6 +38,7 @@ Route::controller(FileController::class)
         Route::post('/folder', 'createFolder')->name('folder.store');
         Route::post('/file', 'store')->name('file.store');
         Route::delete('/file', 'destroy')->name('file.destroy');
+        Route::post('download', 'download')->name('file.download');
     });
 
 Route::middleware('auth')->group(function () {

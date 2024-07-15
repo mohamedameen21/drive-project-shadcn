@@ -16,7 +16,8 @@
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.8",
-        "tightenco/ziggy": "^2.0"
+        "tightenco/ziggy": "^2.0",
+      "ext-zip": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",
