@@ -380,16 +380,11 @@ const restoreFiles = async () => {
                                                     @click="
                                                         isMobile &&
                                                         !longPressedDirective
-                                                            ? openFolder(file)
+                                                            ? null
                                                             : toggleCheckbox(
                                                                   file,
                                                                   $event,
                                                               )
-                                                    "
-                                                    @dblclick="
-                                                        isMobile
-                                                            ? null
-                                                            : openFolder(file)
                                                     "
                                                 >
                                                     <td

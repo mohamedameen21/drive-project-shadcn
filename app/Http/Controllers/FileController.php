@@ -73,7 +73,7 @@ class FileController extends Controller
             //          Note: The path of this folder will be set in the boot method of the File model
             DB::commit();
 
-            return back()->with('message', 'Folder created successfully');
+            return to_route('myFiles')->with('message', 'Folder created successfully');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage(), $e->getTrace());
@@ -333,7 +333,7 @@ class FileController extends Controller
                     ->get();
 
                 foreach ($files as $file) {
-                    $file->forceDelete();
+                    $file->permanentDelete();
                 }
             } else {
                 $files = File::onlyTrashed()
@@ -342,7 +342,7 @@ class FileController extends Controller
                     ->get();
 
                 foreach ($files as $file) {
-                    $file->forceDelete();
+                    $file->permanentDelete();
                 }
             }
 

@@ -262,7 +262,7 @@ const downloadFiles = async () => {
         });
     } catch (e) {
         toast({
-            description: "Error occurred while downloading files",
+            description: e.response.data.message,
             variant: "error",
         });
     }
