@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FilesActionRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
+use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
 use App\Http\Responses\JsonResponse;
 use App\Models\File;
@@ -41,6 +42,7 @@ class FileController extends Controller
             ->where('created_by', Auth::id())
             ->orderBy('is_folder', 'desc')
             ->orderBy('created_at', 'desc')
+            ->orderBy('id')
             ->paginate(10);
 
         $files = FileResource::collection($files);
@@ -51,8 +53,6 @@ class FileController extends Controller
 
         // destructing the ancestors to array, then appending the current folder at the end
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
-
-        $folderPath = new FileResource($folder);
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
     }
@@ -73,7 +73,7 @@ class FileController extends Controller
             //          Note: The path of this folder will be set in the boot method of the File model
             DB::commit();
 
-            return back()->with('message', 'Folder created successfully');
+            return to_route('myFiles')->with('message', 'Folder created successfully');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage(), $e->getTrace());
@@ -94,6 +94,7 @@ class FileController extends Controller
         } else {
             // uploading files
             foreach ($data['files'] as $file) {
+                // here the $file is not Eloquent Model It is a instance of Illuminate/HTTP/UploadedFile that contains store method
                 $path = $file->store('/files/'.$user->id);
                 $fileNode = $this->createFile($file, $path);
                 $parent->appendNode($fileNode);
@@ -145,13 +146,15 @@ class FileController extends Controller
                 $children = $parent->children;
 
                 foreach ($children as $child) {
-                    $child->delete();
+                    //  this delete also deletes the children of this node hence changing
+                    //                    $child->delete();
+                    $child->moveToTrash();
                 }
             } else {
                 foreach ($data['ids'] ?? [] as $id) {
                     $file = File::find($id); // use find instead of findOrFail
                     if ($file) {
-                        $file->delete();
+                        $file->moveToTrash();
                     } else {
                         Log::info("File with id {$id} not found");
                     }
@@ -255,6 +258,108 @@ class FileController extends Controller
             } else {
                 $zip->addFile(Storage::path($file->storage_path), $path);
             }
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        $files = File::onlyTrashed()
+            ->where('created_by', Auth::id())
+            ->orderBy('is_folder', 'desc')
+            ->orderBy('deleted_at', 'desc')
+            ->orderBy('id')
+            ->paginate(10);
+
+        $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return Inertia::render('Trash', compact('files'));
+    }
+
+    public function restoreFiles(TrashFileRequest $request)
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            if ($data['all']) {
+                $files = File::onlyTrashed()
+                    ->where('created_by', Auth::id())
+                    ->get();
+
+                foreach ($files as $file) {
+                    $file->restore();
+                }
+            } else {
+                $files = File::onlyTrashed()
+                    ->where('created_by', Auth::id())
+                    ->whereIn('id', $data['ids'])
+                    ->get();
+
+                foreach ($files as $file) {
+                    $file->restore();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => JsonResponse::SUCCESS,
+                'message' => 'Files restored successfully',
+            ], ResponseAlias::HTTP_OK);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to restore files', $e->getTrace());
+
+            return response()->json([
+                'status' => JsonResponse::ERROR,
+                'message' => 'Failed to restore files',
+            ], ResponseAlias::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function permanentDelete(TrashFileRequest $request)
+    {
+        $data = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            if ($data['all']) {
+                $files = File::onlyTrashed()
+                    ->where('created_by', Auth::id())
+                    ->get();
+
+                foreach ($files as $file) {
+                    $file->permanentDelete();
+                }
+            } else {
+                $files = File::onlyTrashed()
+                    ->where('created_by', Auth::id())
+                    ->whereIn('id', $data['ids'])
+                    ->get();
+
+                foreach ($files as $file) {
+                    $file->permanentDelete();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => JsonResponse::SUCCESS,
+                'message' => 'Files deleted permanently',
+            ], ResponseAlias::HTTP_OK);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete files permanently', $e->getTrace());
+
+            return response()->json([
+                'status' => JsonResponse::ERROR,
+                'message' => 'Failed to delete files permanently',
+            ], ResponseAlias::HTTP_BAD_REQUEST);
         }
     }
 }

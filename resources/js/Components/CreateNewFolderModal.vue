@@ -51,6 +51,7 @@ const createFolder = () => {
             // emit updateModal with a value false
             emit("updateModal", false);
             form.reset();
+            window.location.reload();
         },
         onError: () => {
             toast({

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { router } from "@inertiajs/vue3";
+import { Inertia } from "@inertiajs/inertia";
+
 import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
 import getFileType from "@/helpers/getFileType";
 import {
@@ -15,9 +17,8 @@ import {
     Minus,
     Presentation,
     Video,
-    FileQuestion,
-    ArrowDownToLine,
-    Trash,
+    Trash2,
+    RotateCcw,
 } from "lucide-vue-next";
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import axios from "axios";
@@ -43,8 +44,6 @@ defineOptions({
 
 const props = defineProps({
     files: Object,
-    folder: Object,
-    ancestors: Object,
     errors: Object, // default props that is passed from inertia to every components
     auth: Object, // default props that is passed from inertia to every components
     flash: Object, // default props that is passed from inertia to every components
@@ -84,7 +83,6 @@ const toggleCheckbox = (selectedFile, event) => {
         return;
     }
 
-    // Select a block when shift key is pressed
     if (event.shiftKey && lastSelectedFile.value !== null) {
         const start = Math.min(
             allFiles.value.data.indexOf(selectedFile),
@@ -116,7 +114,6 @@ const fileIconMapper = {
     xls: FileSpreadsheet,
     pdf: FileCheck,
     doc: FileType,
-    unknown: FileQuestion,
 };
 
 const lodeMoreContent = async () => {
@@ -211,30 +208,27 @@ watchEffect(() => {
     }, 50);
 });
 
-const deleteFiles = async () => {
+const truncate = (str, length) => {
+    return str.length > length ? str.substring(0, length) + "..." : str;
+};
+
+const deleteFilesPermanently = async () => {
     try {
-        const response = await axios.delete(route("file.destroy"), {
+        const response = await axios.delete(route("trash.delete"), {
             data: {
-                parent_id: props.folder.id,
                 all: isAllFilesSelected.value,
-                ids: isAllFilesSelected.value ? [] : selectedIds.value,
+                ids: selectedIds.value,
             },
         });
 
-        if (response.data.status === "success") {
-            toast({
-                description: "Files deleted Successfully",
-                variant: "success",
-            });
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        } else {
-            toast({
-                description: "Error occurred while deleting files",
-                variant: "error",
-            });
-        }
+        toast({
+            description: "Files deleted successfully",
+            variant: "success",
+        });
+
+        setTimeout(() => {
+            Inertia.replace(window.location.href, { preserveState: true });
+        }, 1000);
     } catch (e) {
         toast({
             description: "Error occurred while deleting files",
@@ -243,71 +237,64 @@ const deleteFiles = async () => {
     }
 };
 
-const downloadFiles = async () => {
+const restoreFiles = async () => {
     try {
-        const response = await axios.post(route("file.download"), {
-            parent_id: props.folder.id,
+        const response = await axios.post(route("trash.restore"), {
             all: isAllFilesSelected.value,
-            ids: isAllFilesSelected.value ? [] : selectedIds.value,
+            ids: selectedIds.value,
         });
 
-        const a = document.createElement("a");
-        a.download = response.data.filename;
-        a.href = response.data.url;
-        a.click();
-
         toast({
-            description: "Files Downloaded Successfully",
+            description: "Files restored successfully",
             variant: "success",
         });
+
+        setTimeout(() => {
+            Inertia.replace(window.location.href, { preserveState: true });
+        }, 1000);
     } catch (e) {
         toast({
-            description: e.response.data.message,
+            description: "Error occurred while restoring files",
             variant: "error",
         });
     }
-};
-
-const truncate = (str, length) => {
-    return str.length > length ? str.substring(0, length) + "..." : str;
 };
 </script>
 
 <template>
     <div
-        class="mt-9 mb-5 flex flex-col gap-7 justify-between sm:flex-row sm:items-center"
+        class="mt-9 mb-5 flex flex-col gap-7 sm:flex-row items-center sm:justify-end"
     >
-        <FilesBreadCrumb :ancestors="ancestors" />
         <div class="flex w-full sm:w-1/2 xl:w-1/3">
             <Button
-                :disabled="selectedIds.length === 0"
                 class="mr-4 basis-1/2"
-                @click="downloadFiles"
+                :disabled="selectedIds.length == 0"
+                @click="restoreFiles"
             >
-                <ArrowDownToLine class="me-2" />
-                Download
-            </Button>
+                <RotateCcw class="me-2" />
+                Restore</Button
+            >
             <AlertDialog>
                 <AlertDialogTrigger
                     as="button"
                     :disabled="selectedIds.length == 0"
                     class="basis-1/2"
                 >
-                    <Button class="w-full" :disabled="selectedIds.length == 0">
-                        <Trash class="me-2" />
-                        Delete</Button
+                    <Button :disabled="selectedIds.length === 0" class="w-full">
+                        <Trash2 class="me-2" />
+                        Delete forever</Button
                     >
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Are you sure want to delete these selected files?
+                            Are you sure want to permanently delete these files?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction @click="deleteFiles"
+                        <AlertDialogAction @click="deleteFilesPermanently"
                             >Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -317,6 +304,9 @@ const truncate = (str, length) => {
     </div>
 
     <div class="flex-1 overflow-x-scroll overflow-y-clip">
+        <!--        <p>Long Pressed: {{ longPressedComponent }}</p>-->
+        <p class="text-white">{{ selectedFiles.value }}</p>
+
         <div v-if="allFiles.data.length > 0" class="flex flex-col">
             <div class="-m-1.5">
                 <div class="p-1.5 min-w-full inline-block align-middle">
@@ -362,19 +352,7 @@ const truncate = (str, length) => {
                                                         class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
                                                         scope="col"
                                                     >
-                                                        Owner
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
-                                                        scope="col"
-                                                    >
-                                                        Last Modified
-                                                    </th>
-                                                    <th
-                                                        class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500"
-                                                        scope="col"
-                                                    >
-                                                        Size
+                                                        Path
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -402,16 +380,11 @@ const truncate = (str, length) => {
                                                     @click="
                                                         isMobile &&
                                                         !longPressedDirective
-                                                            ? openFolder(file)
+                                                            ? null
                                                             : toggleCheckbox(
                                                                   file,
                                                                   $event,
                                                               )
-                                                    "
-                                                    @dblclick="
-                                                        isMobile
-                                                            ? null
-                                                            : openFolder(file)
                                                     "
                                                 >
                                                     <td
@@ -437,7 +410,6 @@ const truncate = (str, length) => {
                                                                 fileIconMapper[
                                                                     getFileType(
                                                                         file.mime,
-                                                                        file.is_folder,
                                                                     )
                                                                 ]
                                                             "
@@ -452,26 +424,12 @@ const truncate = (str, length) => {
                                                     <td
                                                         class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200"
                                                     >
-                                                        {{ file.owner }}
-                                                    </td>
-                                                    <td
-                                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200"
-                                                    >
-                                                        {{ file.updated_at }}
-                                                    </td>
-                                                    <td
-                                                        class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium"
-                                                    >
-                                                        <span
-                                                            v-if="
-                                                                file.is_folder
-                                                            "
-                                                            class="flex justify-end"
-                                                            ><Minus
-                                                        /></span>
-                                                        <span v-else>{{
-                                                            file.size
-                                                        }}</span>
+                                                        {{
+                                                            truncate(
+                                                                file.path,
+                                                                50,
+                                                            )
+                                                        }}
                                                     </td>
                                                 </tr>
                                             </tbody>

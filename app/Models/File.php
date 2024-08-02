@@ -95,4 +95,25 @@ class File extends Model
 
         return number_format($this->size / (1024 ** $power), 2, '.', ',').' '.$units[$power]; // this power is also act as a index for the units array
     }
+
+    public function moveToTrash()
+    {
+        $this->deleted_at = now();
+        $this->save();
+    }
+
+    public function permanentDelete()
+    {
+        $this->descendants->each(function ($descendant) {
+            if (! $descendant->is_folder) {
+                Storage::delete($descendant->storage_path);
+            }
+            $descendant->forceDelete();
+        });
+
+        if (! $this->is_folder) {
+            Storage::delete($this->storage_path);
+        }
+        $this->forceDelete();
+    }
 }

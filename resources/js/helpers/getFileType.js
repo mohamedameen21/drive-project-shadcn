@@ -1,4 +1,7 @@
-function getFileType(mime) {
+function getFileType(mime, isDirectory) {
+    if (isDirectory) {
+        return "folder";
+    }
     switch (mime) {
         case "application/pdf":
         case "application/x-pdf":
@@ -61,7 +64,7 @@ function getFileType(mime) {
             return "zip";
 
         default:
-            return "folder";
+            return "unknown";
     }
 }
 
