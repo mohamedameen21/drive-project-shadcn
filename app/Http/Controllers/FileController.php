@@ -37,9 +37,15 @@ class FileController extends Controller
             $folder = File::getDefaultRoot(Auth::id());
         }
 
+        $search = $request->input('search');
+
         $files = File::query()
-            ->where('parent_id', $folder->id)
             ->where('created_by', Auth::id())
+            ->when(! empty($search), function ($query) use ($search) {
+                $query->where('name', 'like', "%$search%");
+            }, function ($query) use ($folder) {
+                $query->where('parent_id', $folder->id);
+            })
             ->orderBy('is_folder', 'desc')
             ->orderBy('created_at', 'desc')
             ->orderBy('id')
@@ -73,7 +79,7 @@ class FileController extends Controller
             //          Note: The path of this folder will be set in the boot method of the File model
             DB::commit();
 
-            return to_route('myFiles')->with('message', 'Folder created successfully');
+            return back()->with('message', 'Folder created successfully');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage(), $e->getTrace());
