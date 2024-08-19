@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { router } from "@inertiajs/vue3";
+import {Head, router} from "@inertiajs/vue3";
 import { Inertia } from "@inertiajs/inertia";
 
 import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
@@ -262,6 +262,8 @@ const restoreFiles = async () => {
 </script>
 
 <template>
+    <Head title="Trash | BitBox" />
+
     <div
         class="mt-9 mb-5 flex flex-col gap-7 sm:flex-row items-center sm:justify-end"
     >

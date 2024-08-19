@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\DemoUserController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
+use App\Models\File;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,9 +29,12 @@ Route::get('/', function () {
     ]);
 });
 
-//Route::get('/dashboard', function () {
-//    return Inertia::render('Dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+Route::get('/demo-user-generation', [DemoUserController::class, 'storeDemoUserToken'])->middleware(['guest'])->name('demo-user-generation');
+Route::get('authenticate/{token}', [DemoUserController::class, 'authenticateDemoUser'])->middleware(['guest', 'signed'])->name('authenticate');
 
 Route::controller(FileController::class)
     ->middleware(['auth', 'verified'])
@@ -52,8 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    //    Route::get('/my-files', function () {
-    //    })->name('my-files');
 
     Route::get('/shared-with-me', function () {
     })->name('shared-with-me');

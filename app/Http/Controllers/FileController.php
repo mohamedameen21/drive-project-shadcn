@@ -142,7 +142,6 @@ class FileController extends Controller
 
     public function destroy(FilesActionRequest $request)
     {
-        //        dd($request->all());
         DB::beginTransaction();
         try {
             $data = $request->validated();
