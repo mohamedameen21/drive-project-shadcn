@@ -66,10 +66,4 @@ Route::middleware('auth')->group(function () {
     })->name('shared-by-me');
 });
 
-require __DIR__ . '/auth.php';
-
-Route::get('/test', function() {
-    \App\Jobs\DeleteOldFilesJob::dispatch();
-
-    dd($files);
-});
+require __DIR__.'/auth.php';
