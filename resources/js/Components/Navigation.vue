@@ -6,6 +6,7 @@ import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Dark from "@/Pages/Dark.vue";
 import { Link } from "@inertiajs/vue3";
 import Dropdown from "@/Components/Dropdown.vue";
+import { CloudUpload } from 'lucide-vue-next';
 
 const props = defineProps({
     showingNavigationDropdown: Boolean,
@@ -23,9 +24,10 @@ const props = defineProps({
                     <!-- Logo -->
                     <div class="shrink-0 flex items-center">
                         <Link :href="route('myFiles')">
-                            <ApplicationLogo
-                                class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
-                            />
+                            <div class="flex gap-2">
+                                <CloudUpload/>
+                                <span>Bit Box</span>
+                            </div>
                         </Link>
                     </div>
 
@@ -38,19 +40,19 @@ const props = defineProps({
                             My Files
                         </NavLink>
 
-                        <NavLink
-                            :active="route().current('shared-with-me')"
-                            :href="route('shared-with-me')"
-                        >
-                            Shared with me
-                        </NavLink>
+<!--                        <NavLink-->
+<!--                            :active="route().current('shared-with-me')"-->
+<!--                            :href="route('shared-with-me')"-->
+<!--                        >-->
+<!--                            Shared with me-->
+<!--                        </NavLink>-->
 
-                        <NavLink
-                            :active="route().current('shared-my-me')"
-                            :href="route('shared-by-me')"
-                        >
-                            Shared by me
-                        </NavLink>
+<!--                        <NavLink-->
+<!--                            :active="route().current('shared-my-me')"-->
+<!--                            :href="route('shared-by-me')"-->
+<!--                        >-->
+<!--                            Shared by me-->
+<!--                        </NavLink>-->
 
                         <NavLink
                             :href="route('trash')"
@@ -172,19 +174,19 @@ const props = defineProps({
                     My Files
                 </ResponsiveNavLink>
 
-                <ResponsiveNavLink
-                    :active="route().current('shared-with-me')"
-                    :href="route('shared-with-me')"
-                >
-                    Shared with me
-                </ResponsiveNavLink>
+<!--                <ResponsiveNavLink-->
+<!--                    :active="route().current('shared-with-me')"-->
+<!--                    :href="route('shared-with-me')"-->
+<!--                >-->
+<!--                    Shared with me-->
+<!--                </ResponsiveNavLink>-->
 
-                <ResponsiveNavLink
-                    :active="route().current('shared-by-me')"
-                    :href="route('shared-by-me')"
-                >
-                    Shared by me
-                </ResponsiveNavLink>
+<!--                <ResponsiveNavLink-->
+<!--                    :active="route().current('shared-by-me')"-->
+<!--                    :href="route('shared-by-me')"-->
+<!--                >-->
+<!--                    Shared by me-->
+<!--                </ResponsiveNavLink>-->
 
                 <ResponsiveNavLink
                     :href="route('trash')"
@@ -220,14 +222,14 @@ const props = defineProps({
                     >
                         Log Out
                     </ResponsiveNavLink>
-                    <ResponsiveNavLink as="button" href="#">
-                        <div>
-                            Theme
-                            <span class="ms-4">
-                                <Dark />
-                            </span>
-                        </div>
-                    </ResponsiveNavLink>
+<!--                    <ResponsiveNavLink as="button" href="#">-->
+<!--                        <div>-->
+<!--                            Theme-->
+<!--                            <span class="ms-4">-->
+<!--                                <Dark />-->
+<!--                            </span>-->
+<!--                        </div>-->
+<!--                    </ResponsiveNavLink>-->
                 </div>
             </div>
         </div>

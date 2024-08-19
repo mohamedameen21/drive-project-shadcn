@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { router } from "@inertiajs/vue3";
+import {Head, router} from "@inertiajs/vue3";
 import FilesBreadCrumb from "@/Components/FilesBreadCrumb.vue";
 import getFileType from "@/helpers/getFileType";
 import {
@@ -274,6 +274,8 @@ const truncate = (str, length) => {
 </script>
 
 <template>
+    <Head title="My Files | BitBox" />
+
     <div
         class="mt-9 mb-5 flex flex-col gap-7 justify-between sm:flex-row sm:items-center"
     >
