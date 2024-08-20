@@ -18,11 +18,11 @@ class DemoUserController extends Controller
 
         Cache::put('login_token_' . $token, [
             'user_id' => $user->id,
-        ], now()->addMinutes(5));
+        ], now()->addYear(1));
 
         $signedUrl = URL::temporarySignedRoute(
             'authenticate',
-            now()->addMinutes(5),
+            now()->addYear(1),
             ['token' => $token]
         );
 
