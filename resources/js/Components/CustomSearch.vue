@@ -25,7 +25,7 @@ onMounted(() => {
             placeholder="Search for files and folder"
             class="pl-12 py-6 text-base focus:outline-none focus:border-0"
             v-model="searchValue"
-            @keyup.enter="getFiles"
+            @input="getFiles"
         />
         <span
             class="absolute start-0 inset-y-0 flex items-center justify-center px-2"

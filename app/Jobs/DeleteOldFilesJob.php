@@ -27,7 +27,9 @@ class DeleteOldFilesJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $user = User::where('email', 'demouser@gmail.com')->first() ?? null;
+        $email = config('services.demoUser.email');
+        $user = User::where('email', $email)->first() ?? null;
+
 
         $files = File::where('updated_at', '<', now()->subDays(1))
             ->when($user != null, function ($query) use ($user) {
